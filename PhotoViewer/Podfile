@@ -1,0 +1,18 @@
+
+platform :ios, '11.0'
+
+target 'PhotoViewer' do
+  use_frameworks!
+
+  pod 'Alamofire'
+
+  target 'PhotoViewerTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'PhotoViewerUITests' do
+    # Pods for testing
+  end
+
+end
