@@ -17,10 +17,13 @@ class PhotosViewModel {
     
     var dataDelegate: PhotosViewModelDelegate?
     
-    func getPhotosList() {
-        AF.request(Constants.photosApiUrl, method: .get, parameters: nil, encoding: JSONEncoding.default, headers: nil, interceptor: nil).responseJSON { response in
+    func getPhotosList(page: Int) {
+        var url = Constants.photosApiUrl
+        url.append("?page=\(page)&limit=10")
+        
+        AF.request(url, method: .get, parameters: nil, encoding: JSONEncoding.default, headers: nil, interceptor: nil).responseJSON { response in
             guard let data = response.data else {return}
-            self.printResponse(res: response)
+            self.printResponse(res: response, url: url)
             
             do {
                 switch response.result {
@@ -40,9 +43,10 @@ class PhotosViewModel {
         }
     }
     
-    func printResponse(res: AFDataResponse<Any>) {
+    func printResponse(res: AFDataResponse<Any>, url: String) {
         if let value = res.value {
-            print("------- response.value -------")
+            print("------- \(url)")
+            print("------- response")
             print(value)
         }
     }

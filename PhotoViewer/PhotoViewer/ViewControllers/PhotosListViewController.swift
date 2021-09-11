@@ -13,7 +13,9 @@ class PhotosListViewController: UIViewController {
     
     var photosViewModel = PhotosViewModel()
     var photosData: [PhotosModel]?
-        
+    var pageNumber = 1
+    var isLoadingMore = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -28,7 +30,7 @@ class PhotosListViewController: UIViewController {
         
         if Utility.checkConnection() {
             photosViewModel.dataDelegate = self
-            photosViewModel.getPhotosList()
+            photosViewModel.getPhotosList(page: pageNumber)
             
         } else {
             getCachedData()
@@ -43,12 +45,30 @@ class PhotosListViewController: UIViewController {
         
         ProgressHUD.dismiss()
     }
+    
+    func showLoadMoreSpinner() -> UIView {
+        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 100))
+        
+        let spinner = UIActivityIndicatorView()
+        spinner.center = footerView.center
+        footerView.addSubview(spinner)
+        spinner.startAnimating()
+        
+        return footerView
+    }
 }
 
 extension PhotosListViewController: PhotosViewModelDelegate {
     func getPhotoListResponse(model: [PhotosModel]) {
-        self.photosData = model
+        if self.photosData == nil {
+            self.photosData = model
+        } else {
+            self.photosData?.append(contentsOf: model)
+        }
+        
         self.photosTableView.reloadData()
+        self.photosTableView.tableFooterView = nil
+        self.isLoadingMore = false
         
         ProgressHUD.dismiss()
     }
@@ -73,5 +93,22 @@ extension PhotosListViewController: UITableViewDelegate, UITableViewDataSource {
             return cell
          }
          return UITableViewCell()
+    }
+}
+
+extension PhotosListViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if !isLoadingMore {
+            let scrollViewOffset = scrollView.contentOffset.y
+            let location = self.photosTableView.contentSize.height - scrollView.frame.size.height - 100
+            
+            if scrollViewOffset > location {
+                isLoadingMore = true
+                photosTableView.tableFooterView = showLoadMoreSpinner()
+                
+                pageNumber += 1
+                photosViewModel.getPhotosList(page: pageNumber)
+            }
+        }
     }
 }
