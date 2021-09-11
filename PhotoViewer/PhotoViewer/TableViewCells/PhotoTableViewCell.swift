@@ -25,6 +25,13 @@ class PhotoTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        autherLabel.text = ""
+        downloadedImageView.image = UIImage(named: "ImagePlaceHolder")
+        downloadedImageView.contentMode = .center
+    }
+    
     func initialSetup() {
         containerView.dropShadow()
         containerView.setCornerRadius(value: 5)
