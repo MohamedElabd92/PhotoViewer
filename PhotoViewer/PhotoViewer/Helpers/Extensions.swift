@@ -47,9 +47,9 @@ extension UIImageView {
             URLSession.shared.dataTask(with: URLRequest(url: url)) { (data, response, _) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        print("Image downloaded successfully.")
+                        print("Image downloaded successfully. url = \(urlString)")
                     } else {
-                        print("Failed to download image.")
+                        print("Failed to download image. url = \(urlString)")
                     }
                 }
                 

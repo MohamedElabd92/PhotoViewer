@@ -33,9 +33,12 @@ class PhotoTableViewCell: UITableViewCell {
     }
     
     func setData(model: PhotosModel) {
-        autherLabel.text = model.author
-        
-        if let url = model.download_url {
+        if model.isAdvertisementItem ?? false {
+            autherLabel.text = ""
+            downloadedImageView.image = UIImage(named: "AdPlaceHolder")
+            downloadedImageView.contentMode = .scaleAspectFit
+        } else if let url = model.download_url {
+            autherLabel.text = model.author
             downloadedImageView.download(urlString: url)
         }
     }

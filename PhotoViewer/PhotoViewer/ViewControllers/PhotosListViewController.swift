@@ -12,7 +12,7 @@ class PhotosListViewController: UIViewController {
     @IBOutlet weak var photosTableView: UITableView!
     
     var photosViewModel = PhotosViewModel()
-    var photosData: [PhotosModel]?
+    var photosData: [PhotosModel] = [PhotosModel]()
     var pageNumber = 1
     var isLoadingMore = false
     
@@ -56,15 +56,32 @@ class PhotosListViewController: UIViewController {
         
         return footerView
     }
+    
+    func addAdvertisementItems() {
+        var newItems = [PhotosModel]()
+        
+        var index = 0
+        for item in self.photosData {
+            newItems.append(item)
+            index += 1
+            
+            // Add Advertisement Item
+            if index.isMultiple(of: 5) {
+                let adItem = PhotosModel()
+                adItem.isAdvertisementItem = true
+                newItems.append(adItem)
+            }
+        }
+        
+        self.photosData = newItems
+    }
+    
 }
 
 extension PhotosListViewController: PhotosViewModelDelegate {
     func getPhotoListResponse(model: [PhotosModel]) {
-        if self.photosData == nil {
-            self.photosData = model
-        } else {
-            self.photosData?.append(contentsOf: model)
-        }
+        self.photosData.append(contentsOf: model)
+        self.addAdvertisementItems()
         
         self.photosTableView.reloadData()
         self.photosTableView.tableFooterView = nil
@@ -81,15 +98,13 @@ extension PhotosListViewController: PhotosViewModelDelegate {
 
 extension PhotosListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.photosData?.count ?? 0
+        return self.photosData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell  = photosTableView.dequeueReusableCell(withIdentifier: "PhotoTableViewCell", for: indexPath) as? PhotoTableViewCell {
-
-            if let data = photosData?[indexPath.row] {
-                cell.setData(model: data)
-            }
+            
+            cell.setData(model: photosData[indexPath.row])
             return cell
          }
          return UITableViewCell()
