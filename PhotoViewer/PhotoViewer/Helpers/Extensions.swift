@@ -35,10 +35,10 @@ extension UIViewController {
 var imageCache = NSCache<NSString, UIImage>()
 
 extension UIImageView {
-    func download(urlString: String) {
-        if let url = URL(string: urlString) {
+    func download(model: PhotosModel) {
+        if let download_url = model.download_url, let url = URL(string: download_url) {
             
-            if let image = imageCache.object(forKey: urlString as NSString) {
+            if let image = imageCache.object(forKey: download_url as NSString) {
                 self.image = image
                 self.contentMode = .scaleAspectFit
                 return
@@ -47,9 +47,9 @@ extension UIImageView {
             URLSession.shared.dataTask(with: URLRequest(url: url)) { (data, response, _) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
                     if httpResponse.statusCode == 200 {
-                        print("Image downloaded successfully. url = \(urlString)")
+                        print("Image downloaded successfully. url = \(download_url)")
                     } else {
-                        print("Failed to download image. url = \(urlString)")
+                        print("Failed to download image. url = \(download_url)")
                     }
                 }
                 
@@ -58,8 +58,24 @@ extension UIImageView {
                         self.image = UIImage(data: imageData)
                         self.contentMode = .scaleAspectFit
                         
+                        var isItemFound = false
+                        var allItems = Utility.getSavedUserDefaults()
+                        
+                        if allItems.count < 20 {
+                            for item in allItems where item.id == model.id {
+                                isItemFound = true
+                            }
+                            
+                            if !isItemFound {
+                                let newItem = model
+                                newItem.downloadedImage = imageData
+                                allItems.append(newItem)
+                                Utility.saveToUserDefaults(data: allItems)
+                            }
+                        }
+                        
                         if let image = self.image {
-                            imageCache.setObject(image, forKey: urlString as NSString)
+                            imageCache.setObject(image, forKey: download_url as NSString)
                         }
                     }
                 }

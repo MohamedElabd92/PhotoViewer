@@ -44,9 +44,23 @@ class PhotoTableViewCell: UITableViewCell {
             autherLabel.text = ""
             downloadedImageView.image = UIImage(named: "AdPlaceHolder")
             downloadedImageView.contentMode = .scaleAspectFit
-        } else if let url = model.download_url {
-            autherLabel.text = model.author
-            downloadedImageView.download(urlString: url)
+            
+            return
         }
+        
+        for item in Utility.getSavedUserDefaults() where item.id == model.id {
+            autherLabel.text = item.author
+            
+            if let data = item.downloadedImage {
+                downloadedImageView.image = UIImage(data: data)
+                downloadedImageView.contentMode = .scaleAspectFit
+            }
+            
+            return
+        }
+        
+        
+        autherLabel.text = model.author
+        downloadedImageView.download(model: model)
     }
 }

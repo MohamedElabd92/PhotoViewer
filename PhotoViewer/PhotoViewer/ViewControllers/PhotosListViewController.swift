@@ -42,6 +42,9 @@ class PhotosListViewController: UIViewController {
     }
     
     func getCachedData() {
+        self.photosData.append(contentsOf: Utility.getSavedUserDefaults())
+        self.addAdvertisementItems()
+        self.photosTableView.reloadData()
         
         ProgressHUD.dismiss()
     }
@@ -102,7 +105,7 @@ extension PhotosListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell  = photosTableView.dequeueReusableCell(withIdentifier: "PhotoTableViewCell", for: indexPath) as? PhotoTableViewCell {
+        if let cell = photosTableView.dequeueReusableCell(withIdentifier: "PhotoTableViewCell", for: indexPath) as? PhotoTableViewCell {
             
             cell.setData(model: photosData[indexPath.row])
             return cell
@@ -116,8 +119,8 @@ extension PhotosListViewController: UIScrollViewDelegate {
         if !isLoadingMore {
             let scrollViewOffset = scrollView.contentOffset.y
             let location = self.photosTableView.contentSize.height - scrollView.frame.size.height - 100
-            
-            if scrollViewOffset > location {
+
+            if scrollViewOffset > location && Utility.checkConnection() {
                 isLoadingMore = true
                 photosTableView.tableFooterView = showLoadMoreSpinner()
                 

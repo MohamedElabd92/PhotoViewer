@@ -15,4 +15,5 @@ class PhotosModel: Codable {
     var url: String?
     var download_url: String?
     var isAdvertisementItem: Bool?
+    var downloadedImage: Data?
 }

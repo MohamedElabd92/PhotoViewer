@@ -29,4 +29,26 @@ class Utility {
         let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
         return (isReachable && !needsConnection)
     }
+    
+    static func saveToUserDefaults(data: [PhotosModel]) {
+         let encoder = JSONEncoder()
+         if let encoded = try? encoder.encode(data){
+            UserDefaults.standard.set(encoded, forKey: "CachedData")
+            UserDefaults.standard.synchronize()
+         }
+    }
+    
+    static func getSavedUserDefaults() -> [PhotosModel] {
+        let photosModel = PhotosModel()
+        if let objects = UserDefaults.standard.value(forKey: "CachedData") as? Data {
+            let decoder = JSONDecoder()
+            if let objectsDecoded = try? decoder.decode(Array.self, from: objects) as [PhotosModel] {
+                return objectsDecoded
+            } else {
+                return [photosModel]
+            }
+        } else {
+            return []
+        }
+    }
 }
