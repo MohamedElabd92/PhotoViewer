@@ -24,6 +24,7 @@ class PhotosListViewController: UIViewController {
 
     func initialSetup() {
         ProgressHUD.show("Loading...")
+        self.title = "Photo Viewer"
         photosTableView.delegate = self
         photosTableView.dataSource = self
         registerCells()
@@ -33,6 +34,7 @@ class PhotosListViewController: UIViewController {
             photosViewModel.getPhotosList(page: pageNumber)
             
         } else {
+            self.title = "Photo Viewer (Offline Mode)"
             getCachedData()
         }
     }
@@ -106,17 +108,36 @@ extension PhotosListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = photosTableView.dequeueReusableCell(withIdentifier: "PhotoTableViewCell", for: indexPath) as? PhotoTableViewCell {
-            
+            cell.dataDelegate = self
             cell.setData(model: photosData[indexPath.row])
             return cell
          }
          return UITableViewCell()
     }
+    
+//    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+//        if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SelectedPhotoViewController") as? SelectedPhotoViewController {
+//
+//            vc.photosData = photosData[indexPath.row]
+//            self.navigationController?.pushViewController(vc, animated: true)
+//        }
+//    }
+    
+}
+
+extension PhotosListViewController: PhotoTableViewCellDelegate {
+    func imageDidTappedAction(model: PhotosModel?) {
+        if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SelectedPhotoViewController") as? SelectedPhotoViewController {
+            
+            vc.photosData = model
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
 
 extension PhotosListViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if !isLoadingMore {
+        if !isLoadingMore && !photosData.isEmpty {
             let scrollViewOffset = scrollView.contentOffset.y
             let location = self.photosTableView.contentSize.height - scrollView.frame.size.height - 100
 

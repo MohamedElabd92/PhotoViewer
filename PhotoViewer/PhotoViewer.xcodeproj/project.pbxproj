@@ -24,6 +24,7 @@
 		9A2823E026EBFAC200CA72B6 /* PhotoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A2823DE26EBFAC200CA72B6 /* PhotoTableViewCell.xib */; };
 		9A2823E226EC023500CA72B6 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2823E126EC023500CA72B6 /* Extensions.swift */; };
 		9A2823E426EC0FE800CA72B6 /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2823E326EC0FE800CA72B6 /* Utility.swift */; };
+		9A2823E626ECE62000CA72B6 /* SelectedPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2823E526ECE62000CA72B6 /* SelectedPhotoViewController.swift */; };
 		B000997E21B4E5F0414B71D9 /* Pods_PhotoViewer_PhotoViewerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40F3BC292AE220C668F75DA1 /* Pods_PhotoViewer_PhotoViewerUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +73,7 @@
 		9A2823DE26EBFAC200CA72B6 /* PhotoTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoTableViewCell.xib; sourceTree = "<group>"; };
 		9A2823E126EC023500CA72B6 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		9A2823E326EC0FE800CA72B6 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
+		9A2823E526ECE62000CA72B6 /* SelectedPhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPhotoViewController.swift; sourceTree = "<group>"; };
 		AD82F8F43D363E8279A502B2 /* Pods-PhotoViewer-PhotoViewerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhotoViewer-PhotoViewerUITests.debug.xcconfig"; path = "Target Support Files/Pods-PhotoViewer-PhotoViewerUITests/Pods-PhotoViewer-PhotoViewerUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		B3D8AB18668FC1ABA2A58710 /* Pods-PhotoViewer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhotoViewer.debug.xcconfig"; path = "Target Support Files/Pods-PhotoViewer/Pods-PhotoViewer.debug.xcconfig"; sourceTree = "<group>"; };
 		F9F76ECF0BF7860AC53346E1 /* Pods-PhotoViewer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhotoViewer.release.xcconfig"; path = "Target Support Files/Pods-PhotoViewer/Pods-PhotoViewer.release.xcconfig"; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				9A2823A626EBEB7500CA72B6 /* PhotosListViewController.swift */,
+				9A2823E526ECE62000CA72B6 /* SelectedPhotoViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -474,6 +477,7 @@
 				9A2823DC26EBF43300CA72B6 /* PhotosModel.swift in Sources */,
 				9A2823E226EC023500CA72B6 /* Extensions.swift in Sources */,
 				9A2823DA26EBF2F200CA72B6 /* PhotosViewModel.swift in Sources */,
+				9A2823E626ECE62000CA72B6 /* SelectedPhotoViewController.swift in Sources */,
 				9A2823A526EBEB7500CA72B6 /* SceneDelegate.swift in Sources */,
 				9A2823DF26EBFAC200CA72B6 /* PhotoTableViewCell.swift in Sources */,
 				9A2823D826EBF22400CA72B6 /* Constants.swift in Sources */,
