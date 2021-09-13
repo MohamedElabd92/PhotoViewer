@@ -15,6 +15,7 @@ class PhotosListViewController: UIViewController {
     
     var photosViewModel = PhotosViewModel()
     var photosData: [PhotosModel] = [PhotosModel]()
+    var photosDataWithAds: [PhotosModel] = [PhotosModel]()
     var pageNumber = 1
     var isLoadingMore = false
     
@@ -52,6 +53,7 @@ class PhotosListViewController: UIViewController {
             self.showAlert(title: "No Saved Data", message: "Please check your internet connection.")
         } else {
             self.photosData.append(contentsOf: savedImages)
+            self.addDownloadedImageToModel()
             self.addAdvertisementItems()
             self.photosTableView.reloadData()
         }
@@ -70,13 +72,11 @@ class PhotosListViewController: UIViewController {
         return footerView
     }
     
-    func addAdvertisementItems() {
+    func addDownloadedImageToModel() {
         var newItems = [PhotosModel]()
-        
         var index = 0
+        
         for item in self.photosData {
-            
-            // Download images
             if let url = item.download_url, item.downloadedImage == nil {
                 if let image = imageCache.object(forKey: url as NSString) {
                     item.downloadedImage = image.pngData()
@@ -88,16 +88,20 @@ class PhotosListViewController: UIViewController {
             }
             newItems.append(item)
             index += 1
-            
-            // Add Advertisement Item
-            if index.isMultiple(of: 5) {
-                let adItem = PhotosModel()
-                adItem.isAdvertisementItem = true
-                newItems.append(adItem)
-            }
         }
         
         self.photosData = newItems
+    }
+    
+    func addAdvertisementItems() {
+        photosDataWithAds = [PhotosModel]()
+        
+        for item in photosData.splitInto(size: 5) {
+            photosDataWithAds.append(contentsOf: item)
+            let adItem = PhotosModel()
+            adItem.isAdvertisementItem = true
+            photosDataWithAds.append(adItem)
+        }
     }
     
     func downloadImage(urlString: String, model: PhotosModel, index: Int, completion: @escaping (_ response: Data?) -> Void) {
@@ -146,6 +150,7 @@ class PhotosListViewController: UIViewController {
 extension PhotosListViewController: PhotosViewModelDelegate {
     func getPhotoListResponse(model: [PhotosModel]) {
         self.photosData.append(contentsOf: model)
+        self.addDownloadedImageToModel()
         self.addAdvertisementItems()
         
         self.photosTableView.reloadData()
@@ -163,13 +168,13 @@ extension PhotosListViewController: PhotosViewModelDelegate {
 
 extension PhotosListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.photosData.count
+        return self.photosDataWithAds.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = photosTableView.dequeueReusableCell(withIdentifier: "PhotoTableViewCell", for: indexPath) as? PhotoTableViewCell {
             cell.dataDelegate = self
-            cell.setData(model: photosData[indexPath.row])
+            cell.setData(model: photosDataWithAds[indexPath.row])
             return cell
          }
          return UITableViewCell()
