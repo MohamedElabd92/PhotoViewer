@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import AMShimmer
-import SDWebImage
 
 class SelectedPhotoViewController: UIViewController {
     @IBOutlet weak var selectedImageView: UIImageView!
@@ -18,18 +16,28 @@ class SelectedPhotoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let url = URL(string: self.photosData?.download_url ?? "") {
-            AMShimmer.start(for: selectedImageView)
-            
-            self.selectedImageView.sd_setImage(with: url, completed: {[weak self] (image, error, _, _) in
-                guard let self = self else { return }
-                if error != nil {
-                    self.selectedImageView.image = self.defaultPlacholderImage
+        if let model = self.photosData, let url = model.download_url {
+            if let image = imageCache.object(forKey: url as NSString) {
+                self.selectedImageView.image = image
+            } else {
+                if let image = photosData?.downloadedImage {
+                    self.selectedImageView.image = UIImage(data: image)
+                    
+                } else {
+                    selectedImageView.image = defaultPlacholderImage
+                    self.view.backgroundColor = self.getDominantColor()
+                    
+                    downloadImage(urlString: url, model: model) { imageData in
+                        if let imageData = imageData {
+                            self.selectedImageView.image = UIImage(data: imageData)
+                            self.view.backgroundColor = self.getDominantColor()
+                        }
+                    }
                 }
-                
-                self.view.backgroundColor = self.getDominantColor()
-                AMShimmer.stop(for: self.selectedImageView)
-            })
+            }
+            
+            self.view.backgroundColor = self.getDominantColor()
+            
         } else if photosData?.isAdvertisementItem ?? false {
             selectedImageView.image = UIImage(named: "AdPlaceHolder")
             self.view.backgroundColor = self.getDominantColor()
@@ -51,6 +59,29 @@ class SelectedPhotoViewController: UIViewController {
         context.render(outputImage, toBitmap: &bitmap, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: nil)
         
         return UIColor(red: CGFloat(bitmap[0]) / 255, green: CGFloat(bitmap[1]) / 255, blue: CGFloat(bitmap[2]) / 255, alpha: CGFloat(bitmap[3]) / 255)
+    }
+    
+    func downloadImage(urlString: String, model: PhotosModel, completion: @escaping (_ response: Data?) -> Void) {
+        DispatchQueue.global(qos: .background).async {
+            if let url = URL(string: urlString) {
+                URLSession.shared.dataTask(with: URLRequest(url: url)) { (data, response, _) -> Void in
+                    if let httpResponse = response as? HTTPURLResponse {
+                        if httpResponse.statusCode == 200 {
+                            print("Image downloaded successfully. url = \(urlString)")
+                        } else {
+                            print("Failed to download image. url = \(urlString)")
+                        }
+                    }
+                    
+                    DispatchQueue.main.async {
+                        if let data = data {
+                            completion(data)
+                        }
+                    }
+                    
+                }.resume()
+            }
+        }
     }
     
 }

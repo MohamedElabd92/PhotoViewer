@@ -8,6 +8,8 @@
 import UIKit
 import ProgressHUD
 
+var imageCache = NSCache<NSString, UIImage>()
+
 class PhotosListViewController: UIViewController {
     @IBOutlet weak var photosTableView: UITableView!
     
@@ -35,7 +37,7 @@ class PhotosListViewController: UIViewController {
             
         } else {
             self.title = "Photo Viewer (Offline Mode)"
-            getCachedData()
+            getSavedData()
         }
     }
     
@@ -43,10 +45,16 @@ class PhotosListViewController: UIViewController {
         self.photosTableView.register(UINib(nibName: "PhotoTableViewCell", bundle: nil), forCellReuseIdentifier: "PhotoTableViewCell")
     }
     
-    func getCachedData() {
-        self.photosData.append(contentsOf: Utility.getSavedUserDefaults())
-        self.addAdvertisementItems()
-        self.photosTableView.reloadData()
+    func getSavedData() {
+        let savedImages = Utility.getSavedUserDefaults()
+        
+        if savedImages.isEmpty {
+            self.showAlert(title: "No Saved Data", message: "Please check your internet connection.")
+        } else {
+            self.photosData.append(contentsOf: savedImages)
+            self.addAdvertisementItems()
+            self.photosTableView.reloadData()
+        }
         
         ProgressHUD.dismiss()
     }
@@ -67,6 +75,17 @@ class PhotosListViewController: UIViewController {
         
         var index = 0
         for item in self.photosData {
+            
+            // Download images
+            if let url = item.download_url, item.downloadedImage == nil {
+                if let image = imageCache.object(forKey: url as NSString) {
+                    item.downloadedImage = image.pngData()
+                } else {
+                    downloadImage(urlString: url, model: item, index: index) { image in
+                        item.downloadedImage = image
+                    }
+                }
+            }
             newItems.append(item)
             index += 1
             
@@ -81,6 +100,47 @@ class PhotosListViewController: UIViewController {
         self.photosData = newItems
     }
     
+    func downloadImage(urlString: String, model: PhotosModel, index: Int, completion: @escaping (_ response: Data?) -> Void) {
+        DispatchQueue.global(qos: .background).async {
+            if let url = URL(string: urlString) {
+                URLSession.shared.dataTask(with: URLRequest(url: url)) { (data, response, _) -> Void in
+                    if let httpResponse = response as? HTTPURLResponse {
+                        if httpResponse.statusCode == 200 {
+                            print("Image downloaded successfully. url = \(urlString)")
+                        } else {
+                            print("Failed to download image. url = \(urlString)")
+                        }
+                    }
+                    
+                    DispatchQueue.main.async {
+                        if let data = data {
+                            completion(data)
+                            imageCache.setObject(UIImage(data: data) ?? UIImage(), forKey: (model.download_url ?? "") as NSString)
+                            self.userdefaultsCaching(model: model, imageData: data)
+                            self.photosTableView.reloadRows(at: [IndexPath(item: index, section: 0)], with: .none)
+                        }
+                    }
+                    
+                }.resume()
+            }
+        }
+    }
+    
+    func userdefaultsCaching(model: PhotosModel,imageData: Data) {
+        var isItemFound = false
+        var allItems = Utility.getSavedUserDefaults()
+        
+        if allItems.count < 20 { // cache only 20 items
+            for item in allItems where item.id == model.id {
+                isItemFound = true
+            }
+            
+            if !isItemFound {
+                allItems.append(model)
+                Utility.saveToUserDefaults(data: allItems)
+            }
+        }
+    }
 }
 
 extension PhotosListViewController: PhotosViewModelDelegate {
