@@ -6,33 +6,36 @@
 //
 
 import UIKit
+import AMShimmer
+import SDWebImage
 
 class SelectedPhotoViewController: UIViewController {
     @IBOutlet weak var selectedImageView: UIImageView!
     
-    var photosData: PhotosModel? // = PhotosModel()
+    var photosData: PhotosModel?
+    let defaultPlacholderImage = UIImage(named: "ImagePlaceHolder")
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if let download_url = photosData?.download_url, let image = imageCache.object(forKey: download_url as NSString) {
-            self.selectedImageView.image = image
-            self.selectedImageView.contentMode = .scaleAspectFit
+        
+        if let url = URL(string: self.photosData?.download_url ?? "") {
+            AMShimmer.start(for: selectedImageView)
             
-            self.view.backgroundColor = getDominantColor()
-            
-        } else {
-            
-            if let model = photosData {
-                
-                if model.isAdvertisementItem ?? false {
-                    self.selectedImageView.image = UIImage(named: "AdPlaceHolder")
-                    self.selectedImageView.contentMode = .scaleAspectFit
-                    self.view.backgroundColor = self.selectedImageView.image?.averageColor
-                } else {
-                    self.selectedImageView.download(model: model)
+            self.selectedImageView.sd_setImage(with: url, completed: {[weak self] (image, error, _, _) in
+                guard let self = self else { return }
+                if error != nil {
+                    self.selectedImageView.image = self.defaultPlacholderImage
                 }
-            }
+                
+                self.view.backgroundColor = self.getDominantColor()
+                AMShimmer.stop(for: self.selectedImageView)
+            })
+        } else if photosData?.isAdvertisementItem ?? false {
+            selectedImageView.image = UIImage(named: "AdPlaceHolder")
+            self.view.backgroundColor = self.getDominantColor()
+        } else {
+            selectedImageView.image = defaultPlacholderImage
+            self.view.backgroundColor = self.getDominantColor()
         }
     }
   

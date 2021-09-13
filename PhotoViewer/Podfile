@@ -7,6 +7,7 @@ target 'PhotoViewer' do
   pod 'Alamofire'
   pod 'ProgressHUD'
   pod 'SDWebImage'
+  pod 'AMShimmer'
   
   target 'PhotoViewerTests' do
     inherit! :search_paths

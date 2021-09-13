@@ -113,16 +113,7 @@ extension PhotosListViewController: UITableViewDelegate, UITableViewDataSource {
             return cell
          }
          return UITableViewCell()
-    }
-    
-//    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-//        if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SelectedPhotoViewController") as? SelectedPhotoViewController {
-//
-//            vc.photosData = photosData[indexPath.row]
-//            self.navigationController?.pushViewController(vc, animated: true)
-//        }
-//    }
-    
+    }    
 }
 
 extension PhotosListViewController: PhotoTableViewCellDelegate {
