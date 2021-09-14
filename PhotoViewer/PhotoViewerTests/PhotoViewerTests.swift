@@ -30,4 +30,19 @@ class PhotoViewerTests: XCTestCase {
         }
     }
 
+    func testAddAdvertisementItems() {
+        let vc = PhotosListViewController()
+        
+        // Add 10 items
+        for _ in 1...10 {
+            vc.photosData.append(PhotosModel())
+        }
+        
+        // Add ads items
+        vc.addAdvertisementItems()
+        
+        // Check for ads items
+        XCTAssertTrue(vc.photosDataWithAds[5].isAdvertisementItem ?? false)
+        XCTAssertTrue(vc.photosDataWithAds.last?.isAdvertisementItem ?? false)
+    }
 }
